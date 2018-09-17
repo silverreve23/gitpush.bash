@@ -1,0 +1,124 @@
+#!/bin/bash
+
+key=0;
+branch="";
+main="master";
+branchKey="";
+comment="$(date)";
+
+function getBranch(){
+	echo;
+	echo -ne "\e[32mCurrent branch: \e[35m";
+	git branch | grep '*';
+	echo -e "\e[35m";
+}
+
+echo -e "
+
+          \e[96m::::::::       :::::::::       :::    :::
+        :+:    :+:      :+:    :+:      :+:   :+:
+       +:+             +:+    +:+      +:+  +:+
+      +#++:++#++      +#++:++#+       +#++:++
+            +#+      +#+    +#+      +#+  +#+
+    #+#    #+#      #+#    #+#      #+#   #+#
+    ########       #########       ###    ### \e[35m 🅖 🅘 🅣 all
+
+ ";
+
+getBranch
+
+branch="$(git status | grep -oE 'On branch .*$')"
+branch=${branch:10}
+
+echo -ne "Please write your branch or press 'Enter' for continue current branch: "
+read -r branchKey
+if [[ $branchKey != "" ]]; then
+	branch=$branchKey
+fi
+echo -ne "\e[96mContinue your branch as $branch\e[35m\n"
+
+echo -ne "Please write main branch or press 'Enter' for continue master branch: "
+read -r branchKey
+if [[ $branchKey != "" ]]; then
+	main=$branchKey
+fi
+echo -ne "\e[96mContinue main branch as $main\e[35m\n"
+
+echo -ne "Please write comment for commit or press 'Enter' for continue date comment: "
+read -r commentKey
+
+if [[ $commentKey != "" ]]; then
+	comment=$commentKey
+fi
+
+echo -e "\n\e[96mGit add .\n\e[35m"
+git add .
+
+echo -e "\n\e[96mGit commit -m '$comment'\n\e[35m"
+git commit -m "$comment"
+
+echo -e "\n\e[96mGit push\n\e[35m"
+git push
+
+echo -e "\n\e[96mGit checkout $main\n\e[35m"
+git checkout $main
+
+echo -e "\n\e[96mGit pull\n\e[35m"
+response="$(git pull)"
+
+echo -e "$response"
+
+if [[ $response == *"CONFLICT"* ]]; then
+
+	while [[ $key != "" ]]; do
+
+		echo "Please fix CONFLICT and press enter to continue: "
+		read -r key
+
+	done
+
+	echo -e "\n\e[96mGit add .\n\e[35m"
+	git add .
+
+	echo -e "\n\e[96mGit commit -m 'fix conflict pull'\n\e[35m"
+	git commit -m "fix connflict pull"
+
+fi
+
+echo -e "\n\e[96mGit merge $branch\n\e[35m"
+response="$(git merge "$branch")";
+
+echo -e "$response"
+
+if [[ $response == *"CONFLICT"* ]]; then
+
+	while [[ $key != "" ]]; do
+
+		echo "Please fix CONFLICT and press enter to continue: "
+		read -r key
+
+	done
+
+	echo -e "\n\e[96mGit add .\n\e[35m"
+	git add .
+
+	echo -e "\n\e[96mGit commit -m 'fix conflict merge'\n\e[35m"
+	git commit -m "fix connflict merge"
+
+fi
+
+echo -e "\n\e[96mGit push\n\e[35m"
+git push
+
+echo -e "\n\e[96mGit checkout $branch\n\e[35m"
+git checkout "$branch"
+
+echo -e "\n\e[96mGit merge $main\n\e[35m"
+git merge $main
+
+echo -e "\n\e[96mGit push\n\e[35m"
+git push
+
+echo;
+echo -e "\e[96mBYE! :)";
+echo;
